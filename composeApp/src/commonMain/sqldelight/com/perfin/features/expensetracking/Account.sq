@@ -1,0 +1,36 @@
+CREATE TABLE IF NOT EXISTS AccountEntity (
+    account_id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    bank TEXT
+);
+
+getAllAccounts:
+SELECT *
+FROM AccountEntity
+ORDER BY name;
+
+-- Get account by ID
+getAccountById:
+SELECT *
+FROM AccountEntity
+WHERE account_id = ?;
+
+-- Insert new account
+insertAccount:
+INSERT INTO AccountEntity(
+    account_id,
+    name,
+    bank
+) VALUES (?, ?, ?);
+
+-- Update account details
+updateAccount:
+UPDATE AccountEntity
+SET
+    name = ?
+WHERE account_id = ?;
+
+-- Delete account
+deleteAccount:
+DELETE FROM AccountEntity
+WHERE account_id = ?;

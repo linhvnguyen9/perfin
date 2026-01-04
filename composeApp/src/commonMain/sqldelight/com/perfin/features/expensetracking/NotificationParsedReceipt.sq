@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS NotificationParsedReceiptEntity (
+    timestamp INTEGER NOT NULL,
+    package_name TEXT NOT NULL,
+    PRIMARY KEY (timestamp, package_name)
+);
+
+getReceipt:
+SELECT *
+FROM NotificationParsedReceiptEntity
+WHERE timestamp = ? AND package_name = ?;
+
+insert:
+INSERT OR IGNORE INTO NotificationParsedReceiptEntity(
+    timestamp,
+    package_name
+) VALUES (?, ?);
