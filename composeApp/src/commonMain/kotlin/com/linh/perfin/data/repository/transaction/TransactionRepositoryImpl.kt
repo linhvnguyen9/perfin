@@ -17,7 +17,7 @@ class TransactionRepositoryImpl(
     }
 
     override suspend fun getTransactionById(id: String): Transaction? {
-        TODO("Not yet implemented")
+        return localDataSource.getTransactionById(id)?.toTransaction()
     }
 
     override suspend fun insertTransaction(transaction: Transaction) {
@@ -25,7 +25,7 @@ class TransactionRepositoryImpl(
     }
 
     override suspend fun updateTransaction(transaction: Transaction) {
-        TODO("Not yet implemented")
+        localDataSource.updateTransaction(transaction.toTransactionEntity())
     }
 
     override suspend fun updateTransactionName(id: String, name: String) {
@@ -33,6 +33,10 @@ class TransactionRepositoryImpl(
     }
 
     override suspend fun deleteTransaction(id: String) {
-        TODO("Not yet implemented")
+        localDataSource.deleteTransaction(id)
+    }
+
+    override suspend fun hasTransactionsByAccount(accountId: String): Boolean {
+        return localDataSource.hasTransactionsByAccount(accountId)
     }
 }

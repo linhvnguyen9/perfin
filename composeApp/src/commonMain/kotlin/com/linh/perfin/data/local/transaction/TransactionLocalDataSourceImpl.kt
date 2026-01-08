@@ -63,4 +63,30 @@ class TransactionLocalDataSourceImpl(
             transaction_id = id
         )
     }
+
+    override suspend fun getTransactionById(id: String): TransactionsEntity? {
+        return queries.getTransactionById(id).executeAsOneOrNull()
+    }
+
+    override suspend fun updateTransaction(transaction: TransactionsEntity) {
+        queries.updateTransaction(
+            amount = transaction.amount,
+            title = transaction.title,
+            date = transaction.date,
+            notes = transaction.notes,
+            location = transaction.location,
+            currentTimestamp = System.currentTimeMillis(),
+            transactionId = transaction.transaction_id
+        )
+    }
+
+    override suspend fun deleteTransaction(id: String) {
+        queries.deleteTransaction(id)
+    }
+
+    override suspend fun hasTransactionsByAccount(accountId: String): Boolean {
+        return queries.getAllTransactionsByAccount(accountId)
+            .executeAsList()
+            .isNotEmpty()
+    }
 }

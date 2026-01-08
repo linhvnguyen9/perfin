@@ -69,6 +69,8 @@ kotlin {
             implementation(libs.napier)
 
             implementation(libs.bignum)
+
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

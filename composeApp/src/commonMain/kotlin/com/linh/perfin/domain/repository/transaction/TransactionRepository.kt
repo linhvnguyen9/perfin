@@ -10,4 +10,5 @@ interface TransactionRepository {
     suspend fun updateTransaction(transaction: Transaction)
     suspend fun updateTransactionName(id: String, name: String)
     suspend fun deleteTransaction(id: String)
+    suspend fun hasTransactionsByAccount(accountId: String): Boolean
 }
