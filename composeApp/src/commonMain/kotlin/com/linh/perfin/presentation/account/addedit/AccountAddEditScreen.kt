@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.linh.perfin.presentation.account.addedit.components.AccountNameInput
+import com.linh.perfin.presentation.account.addedit.components.AccountNumberInput
 import com.linh.perfin.presentation.account.addedit.components.BankSelector
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -126,6 +127,8 @@ fun AccountAddEditScreen(
                     isSubmitting = state.isSubmitting,
                     isEditMode = isEditMode,
                     viewModel = viewModel,
+                    onNavigateBack = onNavigateBack,
+                    onShowUnsavedChangesDialog = { showUnsavedChangesDialog = true },
                     modifier = Modifier.padding(paddingValues)
                 )
             }
@@ -196,6 +199,8 @@ private fun AccountForm(
     isSubmitting: Boolean,
     isEditMode: Boolean,
     viewModel: AccountAddEditViewModel,
+    onNavigateBack: () -> Unit,
+    onShowUnsavedChangesDialog: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -227,6 +232,20 @@ private fun AccountForm(
         }
 
         item {
+            AccountNumberInput(
+                accountNumber = formState.accountNumber,
+                onAccountNumberChange = {
+                    viewModel.updateAccountNumber(it)
+                    viewModel.markFieldAsTouched(AccountFormState.FormField.ACCOUNT_NUMBER)
+                },
+                isError = formState.touchedFields.contains(AccountFormState.FormField.ACCOUNT_NUMBER) &&
+                        formState.errors.containsKey(AccountFormState.FormField.ACCOUNT_NUMBER),
+                errorMessage = formState.errors[AccountFormState.FormField.ACCOUNT_NUMBER],
+                enabled = !isSubmitting
+            )
+        }
+
+        item {
             BankSelector(
                 selectedBank = formState.bank,
                 onBankSelected = {
@@ -246,7 +265,13 @@ private fun AccountForm(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 OutlinedButton(
-                    onClick = { /* Handled by back button */ },
+                    onClick = {
+                        if (viewModel.canNavigateAway()) {
+                            onNavigateBack()
+                        } else {
+                            onShowUnsavedChangesDialog()
+                        }
+                    },
                     modifier = Modifier.weight(1f),
                     enabled = !isSubmitting
                 ) {

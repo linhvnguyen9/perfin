@@ -57,7 +57,7 @@ data class TransactionFormData(
                 transactionId = transaction.id,
                 accountId = transaction.accountId,
                 categoryId = null, // TODO: Add category relationship
-                amount = absAmount.toString(),
+                amount = absAmount.toPlainString(),
                 description = transaction.description,
                 transactionType = type,
                 dateTime = transaction.date,

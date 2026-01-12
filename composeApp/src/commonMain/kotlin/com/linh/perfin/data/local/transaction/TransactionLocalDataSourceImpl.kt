@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlin.time.Clock
 
 class TransactionLocalDataSourceImpl(
     database: ExpenseTrackingDatabase,
@@ -75,7 +76,7 @@ class TransactionLocalDataSourceImpl(
             date = transaction.date,
             notes = transaction.notes,
             location = transaction.location,
-            currentTimestamp = System.currentTimeMillis(),
+            currentTimestamp = Clock.System.now().toEpochMilliseconds(),
             transactionId = transaction.transaction_id
         )
     }

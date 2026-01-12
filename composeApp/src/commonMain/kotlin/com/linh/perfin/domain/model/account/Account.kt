@@ -9,6 +9,7 @@ import kotlin.uuid.Uuid
 data class Account(
     val id: String = generateId(),
     val name: String,
+    val accountNumber: String = "",
     val bank: BankInVietnam?
 ) {
     companion object {

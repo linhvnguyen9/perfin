@@ -40,6 +40,7 @@ class AccountLocalDataSourceImpl(
             queries.insertAccount(
                 account_id = account.account_id,
                 name = account.name,
+                account_number = account.account_number,
                 bank = account.bank
             )
         }
@@ -48,8 +49,10 @@ class AccountLocalDataSourceImpl(
     override suspend fun updateAccount(account: AccountEntity) {
         return withContext(ioDispatcher) {
             queries.updateAccount(
-                account_id = account.account_id,
                 name = account.name,
+                account_number = account.account_number,
+                bank = account.bank,
+                account_id = account.account_id
             )
         }
     }

@@ -1,5 +1,6 @@
 package com.linh.perfin.di
 
+import com.ionspin.kotlin.bignum.decimal.BigDecimal
 import com.linh.perfin.data.local.account.AccountLocalDataSource
 import com.linh.perfin.data.local.account.AccountLocalDataSourceImpl
 import com.linh.perfin.data.local.banknotification.BankNotificationLocalDataSource
@@ -7,15 +8,25 @@ import com.linh.perfin.data.local.banknotification.BankNotificationLocalDataSour
 import com.linh.perfin.data.local.category.CategoryLocalDataSource
 import com.linh.perfin.data.local.category.CategoryLocalDataSourceImpl
 import com.linh.perfin.data.local.expenseTrackingDatabaseModule
+import com.linh.perfin.data.local.split.ParticipantLocalDataSource
+import com.linh.perfin.data.local.split.ParticipantLocalDataSourceImpl
+import com.linh.perfin.data.local.split.SplitAllocationLocalDataSource
+import com.linh.perfin.data.local.split.SplitAllocationLocalDataSourceImpl
+import com.linh.perfin.data.local.split.SplitTransactionLocalDataSource
+import com.linh.perfin.data.local.split.SplitTransactionLocalDataSourceImpl
 import com.linh.perfin.data.local.transaction.TransactionLocalDataSource
 import com.linh.perfin.data.local.transaction.TransactionLocalDataSourceImpl
 import com.linh.perfin.data.repository.account.AccountRepositoryImpl
 import com.linh.perfin.data.repository.banknotification.NotificationTrackerRepositoryImpl
 import com.linh.perfin.data.repository.category.CategoryRepositoryImpl
+import com.linh.perfin.data.repository.split.ParticipantRepositoryImpl
+import com.linh.perfin.data.repository.split.SplitTransactionRepositoryImpl
 import com.linh.perfin.data.repository.transaction.TransactionRepositoryImpl
 import com.linh.perfin.domain.repository.account.AccountRepository
 import com.linh.perfin.domain.repository.banknotification.NotificationTrackerRepository
 import com.linh.perfin.domain.repository.category.CategoryRepository
+import com.linh.perfin.domain.repository.split.ParticipantRepository
+import com.linh.perfin.domain.repository.split.SplitTransactionRepository
 import com.linh.perfin.domain.repository.transaction.TransactionRepository
 import com.linh.perfin.domain.usecase.account.CreateAccountUseCase
 import com.linh.perfin.domain.usecase.account.DeleteAccountUseCase
@@ -26,20 +37,27 @@ import com.linh.perfin.domain.usecase.banknotification.ParseNotificationUseCase
 import com.linh.perfin.domain.usecase.banknotification.parsers.NotificationParser
 import com.linh.perfin.domain.usecase.banknotification.parsers.TechcombankNotificationParser
 import com.linh.perfin.domain.usecase.banknotification.parsers.VietcombankNotificationParser
+import com.linh.perfin.domain.usecase.GenerateVietQrCodeUseCase
+import com.linh.perfin.domain.usecase.split.*
 import com.linh.perfin.domain.usecase.transaction.CreateTransactionUseCase
 import com.linh.perfin.domain.usecase.transaction.GetAllTransactionsUseCase
+import com.linh.perfin.domain.usecase.transaction.GetTransactionByIdUseCase
 import com.linh.perfin.domain.usecase.transaction.GetTransactionsWithDetailsUseCase
 import com.linh.perfin.domain.usecase.transaction.UpdateTransactionNameUseCase
 import com.linh.perfin.presentation.account.addedit.AccountAddEditViewModel
 import com.linh.perfin.presentation.account.addedit.AccountFormValidator
 import com.linh.perfin.presentation.account.list.ManageAccountsViewModel
 import com.linh.perfin.presentation.profile.ProfileViewModel
+import com.linh.perfin.presentation.qr.TransactionQrViewModel
+import com.linh.perfin.presentation.split.SplitTransactionScreen
+import com.linh.perfin.presentation.split.SplitTransactionViewModel
 import com.linh.perfin.presentation.transaction.addedit.TransactionAddEditViewModel
 import com.linh.perfin.presentation.transaction.addedit.TransactionFormValidator
 import com.linh.perfin.presentation.transaction.list.TransactionListViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import org.koin.dsl.navigation3.navigation
 
 val expenseTrackingModule = module {
     includes(expenseTrackingDatabaseModule)
@@ -48,11 +66,16 @@ val expenseTrackingModule = module {
     factory<TransactionLocalDataSource> { TransactionLocalDataSourceImpl(get()) }
     factory<BankNotificationLocalDataSource> { BankNotificationLocalDataSourceImpl(get()) }
     factory<CategoryLocalDataSource> { CategoryLocalDataSourceImpl(get()) }
+    factory<ParticipantLocalDataSource> { ParticipantLocalDataSourceImpl(get()) }
+    factory<SplitTransactionLocalDataSource> { SplitTransactionLocalDataSourceImpl(get()) }
+    factory<SplitAllocationLocalDataSource> { SplitAllocationLocalDataSourceImpl(get()) }
 
     factory<AccountRepository> { AccountRepositoryImpl(get()) }
     factory<TransactionRepository> { TransactionRepositoryImpl(get()) }
     factory<NotificationTrackerRepository> { NotificationTrackerRepositoryImpl(get()) }
     factory<CategoryRepository> { CategoryRepositoryImpl(get()) }
+    factory<ParticipantRepository> { ParticipantRepositoryImpl(get()) }
+    factory<SplitTransactionRepository> { SplitTransactionRepositoryImpl(get(), get(), get()) }
 
     factory { CreateAccountUseCase(get()) }
     factory { GetAllAccountsUseCase(get()) }
@@ -60,10 +83,27 @@ val expenseTrackingModule = module {
     factory { UpdateAccountUseCase(get()) }
     factory { DeleteAccountUseCase(get(), get()) }
     factory { GetAllTransactionsUseCase(get()) }
+    factory { GetTransactionByIdUseCase(get()) }
     factory { CreateTransactionUseCase(get()) }
     factory { UpdateTransactionNameUseCase(get()) }
     factory { ParseNotificationUseCase(get(), get(), get(), get(), getAll<NotificationParser>()) }
     factory { GetTransactionsWithDetailsUseCase(get(), get(), get()) }
+    factory { GetAllParticipantsUseCase(get()) }
+    factory { GetParticipantByIdUseCase(get()) }
+    factory { CreateParticipantUseCase(get()) }
+    factory { CalculateSplitAmountsUseCase() }
+    factory { ValidateSplitTransactionUseCase() }
+    factory { SaveSplitTransactionUseCase(get(), get(), get()) }
+    factory { GetSplitByTransactionIdUseCase(get()) }
+    factory { DeleteSplitTransactionUseCase(get()) }
+    factory { GenerateVietQrCodeUseCase() }
+
+    single { TransactionFormValidator() }
+    single { AccountFormValidator() }
+
+    single<NotificationParser>(named("VietcombankNotificationParser")) { VietcombankNotificationParser() }
+    single<NotificationParser>(named("TechcombankNotificationParser")) { TechcombankNotificationParser() }
+
 
     viewModel { TransactionListViewModel(get()) }
 
@@ -83,6 +123,47 @@ val expenseTrackingModule = module {
     viewModel { ManageAccountsViewModel(get()) }
 
     viewModel { params ->
+        val transactionId: String = params.get(0)
+        val transactionAmountString: String = params.get(1)
+        val transactionAmount = try {
+            BigDecimal.parseString(transactionAmountString)
+        } catch (e: Exception) {
+            BigDecimal.ZERO
+        }
+        SplitTransactionViewModel(
+            transactionId = transactionId,
+            transactionAmount = transactionAmount,
+            getAllParticipantsUseCase = get(),
+            getSplitByTransactionIdUseCase = get(),
+            saveSplitTransactionUseCase = get(),
+            calculateSplitAmountsUseCase = get(),
+            validateSplitTransactionUseCase = get(),
+            deleteSplitTransactionUseCase = get(),
+            createParticipantUseCase = get()
+        )
+    }
+
+    viewModel { params ->
+        val transactionId: String = params.get(0)
+        val participantId: String = params.get(1)
+        val splitAmountString: String = params.get(2)
+        val splitAmount = try {
+            BigDecimal.parseString(splitAmountString)
+        } catch (e: Exception) {
+            BigDecimal.ZERO
+        }
+        TransactionQrViewModel(
+            transactionId = transactionId,
+            participantId = participantId,
+            splitAmount = splitAmount,
+            getTransactionByIdUseCase = get(),
+            getAccountByIdUseCase = get(),
+            getParticipantByIdUseCase = get(),
+            generateVietQrCodeUseCase = get()
+        )
+    }
+
+    viewModel { params ->
         AccountAddEditViewModel(
             accountId = params.getOrNull(),
             createAccountUseCase = get(),
@@ -92,10 +173,4 @@ val expenseTrackingModule = module {
             validator = get()
         )
     }
-
-    single { TransactionFormValidator() }
-    single { AccountFormValidator() }
-
-    single<NotificationParser>(named("VietcombankNotificationParser")) { VietcombankNotificationParser() }
-    single<NotificationParser>(named("TechcombankNotificationParser")) { TechcombankNotificationParser() }
 }

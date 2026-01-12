@@ -1,0 +1,52 @@
+CREATE TABLE IF NOT EXISTS ParticipantEntity (
+    participant_id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT,
+    phone TEXT,
+    avatar_url TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+);
+
+getAllParticipants:
+SELECT *
+FROM ParticipantEntity
+ORDER BY name ASC;
+
+getParticipantById:
+SELECT *
+FROM ParticipantEntity
+WHERE participant_id = :participantId;
+
+insertParticipant:
+INSERT INTO ParticipantEntity (
+    participant_id,
+    name,
+    email,
+    phone,
+    avatar_url,
+    created_at,
+    updated_at
+) VALUES (
+    ?, ?, ?, ?, ?, ?, ?
+);
+
+updateParticipant:
+UPDATE ParticipantEntity
+SET
+    name = :name,
+    email = :email,
+    phone = :phone,
+    avatar_url = :avatarUrl,
+    updated_at = :updatedAt
+WHERE participant_id = :participantId;
+
+deleteParticipant:
+DELETE FROM ParticipantEntity
+WHERE participant_id = :participantId;
+
+searchParticipants:
+SELECT *
+FROM ParticipantEntity
+WHERE name LIKE '%' || :query || '%'
+ORDER BY name ASC;

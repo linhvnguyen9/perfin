@@ -5,6 +5,7 @@ import com.linh.perfin.domain.model.BankInVietnam
 data class AccountFormState(
     val accountId: String? = null,
     val name: String = "",
+    val accountNumber: String = "",
     val bank: BankInVietnam? = null,
     val errors: Map<FormField, String> = emptyMap(),
     val touchedFields: Set<FormField> = emptySet(),
@@ -12,6 +13,7 @@ data class AccountFormState(
 ) {
     enum class FormField {
         NAME,
+        ACCOUNT_NUMBER,
         BANK
     }
 

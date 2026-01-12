@@ -59,6 +59,7 @@ class AccountAddEditViewModel(
                     formState = AccountFormState(
                         accountId = formData.accountId,
                         name = formData.name,
+                        accountNumber = formData.accountNumber,
                         bank = formData.bank
                     )
                 )
@@ -74,6 +75,10 @@ class AccountAddEditViewModel(
 
     fun updateName(name: String) {
         updateFormState { it.copy(name = name, isDirty = true) }
+    }
+
+    fun updateAccountNumber(accountNumber: String) {
+        updateFormState { it.copy(accountNumber = accountNumber, isDirty = true) }
     }
 
     fun updateBank(bank: BankInVietnam?) {
@@ -93,6 +98,7 @@ class AccountAddEditViewModel(
 
         val error = when (field) {
             AccountFormState.FormField.NAME -> validator.validateName(formState.name)
+            AccountFormState.FormField.ACCOUNT_NUMBER -> null // Optional field, no validation needed
             AccountFormState.FormField.BANK -> validator.validateBank(formState.bank)
         }
 
@@ -137,6 +143,7 @@ class AccountAddEditViewModel(
                 val formData = AccountFormData(
                     accountId = formState.accountId,
                     name = formState.name,
+                    accountNumber = formState.accountNumber,
                     bank = formState.bank
                 )
 

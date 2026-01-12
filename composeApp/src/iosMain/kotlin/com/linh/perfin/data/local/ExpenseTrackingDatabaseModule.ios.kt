@@ -2,6 +2,7 @@ package com.linh.perfin.data.local
 
 import app.cash.sqldelight.driver.native.NativeSqliteDriver
 import co.touchlab.sqliter.DatabaseConfiguration
+import com.perfin.features.expensetracking.ExpenseTrackingDatabase
 import org.koin.core.module.Module
 import org.koin.dsl.module
 

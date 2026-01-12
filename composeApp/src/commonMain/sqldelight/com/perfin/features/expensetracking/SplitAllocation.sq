@@ -1,0 +1,76 @@
+CREATE TABLE IF NOT EXISTS SplitAllocationEntity (
+    allocation_id TEXT PRIMARY KEY NOT NULL,
+    split_transaction_id TEXT NOT NULL,
+    participant_id TEXT NOT NULL,
+    allocation_value TEXT NOT NULL,
+    calculated_amount TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    FOREIGN KEY (split_transaction_id) REFERENCES SplitTransactionEntity(split_transaction_id) ON DELETE CASCADE,
+    FOREIGN KEY (participant_id) REFERENCES ParticipantEntity(participant_id) ON DELETE RESTRICT,
+    UNIQUE(split_transaction_id, participant_id)
+);
+
+getAllocationsBySplitId:
+SELECT *
+FROM SplitAllocationEntity
+WHERE split_transaction_id = :splitTransactionId
+ORDER BY participant_id;
+
+getAllocationById:
+SELECT *
+FROM SplitAllocationEntity
+WHERE allocation_id = :allocationId;
+
+insertAllocation:
+INSERT INTO SplitAllocationEntity (
+    allocation_id,
+    split_transaction_id,
+    participant_id,
+    allocation_value,
+    calculated_amount,
+    created_at,
+    updated_at
+) VALUES (
+    ?, ?, ?, ?, ?, ?, ?
+);
+
+updateAllocation:
+UPDATE SplitAllocationEntity
+SET
+    allocation_value = :allocationValue,
+    calculated_amount = :calculatedAmount,
+    updated_at = :updatedAt
+WHERE allocation_id = :allocationId;
+
+deleteAllocation:
+DELETE FROM SplitAllocationEntity
+WHERE allocation_id = :allocationId;
+
+deleteAllocationsBySplitId:
+DELETE FROM SplitAllocationEntity
+WHERE split_transaction_id = :splitTransactionId;
+
+getSplitWithAllocations:
+SELECT
+    s.split_transaction_id,
+    s.parent_transaction_id,
+    s.split_mode,
+    s.created_at AS split_created_at,
+    s.updated_at AS split_updated_at,
+    a.allocation_id,
+    a.participant_id,
+    a.allocation_value,
+    a.calculated_amount,
+    a.created_at AS allocation_created_at,
+    a.updated_at AS allocation_updated_at,
+    p.name AS participant_name,
+    p.email AS participant_email,
+    p.phone AS participant_phone,
+    p.avatar_url AS participant_avatar_url,
+    p.created_at AS participant_created_at,
+    p.updated_at AS participant_updated_at
+FROM SplitTransactionEntity s
+LEFT JOIN SplitAllocationEntity a ON s.split_transaction_id = a.split_transaction_id
+LEFT JOIN ParticipantEntity p ON a.participant_id = p.participant_id
+WHERE s.parent_transaction_id = :transactionId;

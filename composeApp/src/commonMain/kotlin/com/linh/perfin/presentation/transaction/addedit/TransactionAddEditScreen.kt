@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -33,6 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.linh.perfin.domain.model.account.Account
+import com.linh.perfin.domain.model.category.Category
 import com.linh.perfin.presentation.transaction.addedit.components.AccountSelector
 import com.linh.perfin.presentation.transaction.addedit.components.AmountInput
 import com.linh.perfin.presentation.transaction.addedit.components.CategorySelector
@@ -55,6 +58,7 @@ import perfin.composeapp.generated.resources.delete_24px
 fun TransactionAddEditScreen(
     transactionId: String?,
     onNavigateBack: () -> Unit,
+    onNavigateToSplit: ((String, String) -> Unit)? = null,
     modifier: Modifier = Modifier,
     viewModel: TransactionAddEditViewModel = koinViewModel(
         parameters = { parametersOf(transactionId) }
@@ -134,7 +138,10 @@ fun TransactionAddEditScreen(
                     categories = state.categories,
                     isSubmitting = state.isSubmitting,
                     isEditMode = isEditMode,
+                    onNavigateToSplit = onNavigateToSplit,
                     viewModel = viewModel,
+                    onNavigateBack = onNavigateBack,
+                    onShowUnsavedChangesDialog = { showUnsavedChangesDialog = true },
                     modifier = Modifier.padding(paddingValues)
                 )
             }
@@ -202,11 +209,14 @@ fun TransactionAddEditScreen(
 @Composable
 private fun TransactionForm(
     formState: TransactionFormState,
-    accounts: List<com.linh.perfin.domain.model.account.Account>,
-    categories: List<com.linh.perfin.domain.model.category.Category>,
+    accounts: List<Account>,
+    categories: List<Category>,
     isSubmitting: Boolean,
     isEditMode: Boolean,
+    onNavigateToSplit: ((String, String) -> Unit)?,
     viewModel: TransactionAddEditViewModel,
+    onNavigateBack: () -> Unit,
+    onShowUnsavedChangesDialog: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -328,11 +338,30 @@ private fun TransactionForm(
             )
         }
 
+        // Split Transaction Button
+        if (onNavigateToSplit != null && formState.transactionId != null && formState.amount.isNotBlank()) {
+            item {
+                OutlinedButton(
+                    onClick = { onNavigateToSplit(formState.transactionId, formState.amount) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isSubmitting
+                ) {
+                    Text("Split Transaction")
+                }
+            }
+        }
+
         // Action Buttons
         item {
             FormActionButtons(
                 onSave = viewModel::submitForm,
-                onCancel = { /* Handled by back button */ },
+                onCancel = {
+                    if (viewModel.canNavigateAway()) {
+                        onNavigateBack()
+                    } else {
+                        onShowUnsavedChangesDialog()
+                    }
+                },
                 isEditMode = isEditMode,
                 isSaving = isSubmitting,
                 canSave = formState.hasRequiredFields() && formState.isValid()

@@ -1,0 +1,44 @@
+CREATE TABLE IF NOT EXISTS SplitTransactionEntity (
+    split_transaction_id TEXT PRIMARY KEY NOT NULL,
+    parent_transaction_id TEXT NOT NULL,
+    split_mode TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    FOREIGN KEY (parent_transaction_id) REFERENCES TransactionsEntity(transaction_id) ON DELETE CASCADE
+);
+
+getSplitByTransactionId:
+SELECT *
+FROM SplitTransactionEntity
+WHERE parent_transaction_id = :transactionId;
+
+getSplitById:
+SELECT *
+FROM SplitTransactionEntity
+WHERE split_transaction_id = :splitTransactionId;
+
+insertSplitTransaction:
+INSERT INTO SplitTransactionEntity (
+    split_transaction_id,
+    parent_transaction_id,
+    split_mode,
+    created_at,
+    updated_at
+) VALUES (
+    ?, ?, ?, ?, ?
+);
+
+updateSplitTransaction:
+UPDATE SplitTransactionEntity
+SET
+    split_mode = :splitMode,
+    updated_at = :updatedAt
+WHERE split_transaction_id = :splitTransactionId;
+
+deleteSplitTransaction:
+DELETE FROM SplitTransactionEntity
+WHERE split_transaction_id = :splitTransactionId;
+
+deleteSplitByTransactionId:
+DELETE FROM SplitTransactionEntity
+WHERE parent_transaction_id = :transactionId;

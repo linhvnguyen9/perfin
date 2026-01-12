@@ -12,6 +12,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,7 +31,10 @@ import com.linh.perfin.presentation.transaction.list.components.TransactionGroup
 import com.linh.perfin.presentation.transaction.list.components.TransactionListItem
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
+import perfin.composeapp.generated.resources.Res
+import perfin.composeapp.generated.resources.add_24px
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +56,14 @@ fun TransactionListScreen(
                     )
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onNavigateToCreate) {
+                Icon(
+                    painterResource(Res.drawable.add_24px),
+                    contentDescription = "Add transaction"
+                )
+            }
         },
         modifier = modifier
     ) { paddingValues ->

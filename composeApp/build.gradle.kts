@@ -63,6 +63,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.compose.viewmodel.navigation)
+            implementation(libs.koin.compose.navigation3)
 
             implementation(libs.sqldelight.coroutines)
 
@@ -71,6 +72,8 @@ kotlin {
             implementation(libs.bignum)
 
             implementation(libs.kotlinx.datetime)
+
+            implementation(libs.qrose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
